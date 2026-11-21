@@ -1,11 +1,32 @@
-<div align="center">
+# April IA
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Asistente personal móvil (PWA / Android TWA) con chat inteligente usando Gemini, gestión de tareas, Google Workspace (Calendar, Tasks y Gmail), Spotify, WhatsApp y Telegram.
 
-  <h1>Built with AI Studio</h2>
+## Requisitos
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+- Node.js 22+
+- Variables de entorno configuradas según `.env.example`
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Desarrollo local
 
-</div>
+```bash
+npm install
+npm run dev
+```
+
+## Compilar y ejecutar en producción
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+## Variables de entorno (`.env.example`)
+
+- `GEMINI_API_KEY`: Clave de API de Google Gemini en el servidor.
+- `APP_URL`: URL pública HTTPS del servidor desplegado.
+- `PORT`: Puerto HTTP (por defecto `3000`; Cloud Run/Render/Railway lo asignan automáticamente).
+- `NODE_ENV`: `production` en servidor desplegado.
+- `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`: Credenciales OAuth de Spotify.
+- `ANDROID_PACKAGE_NAME` / `ANDROID_SHA256_FINGERPRINT`: Opcional para verificación Digital Asset Links (`/.well-known/assetlinks.json`) en Android TWA/PWABuilder.

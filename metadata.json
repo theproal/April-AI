@@ -1,0 +1,6 @@
+{
+  "name": "April IA",
+  "description": "Asistente personal inteligente para Android y escritorio que organiza tus tareas con facilidad y se vincula con WhatsApp, Google Calendar, Google Tasks y Gmail.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

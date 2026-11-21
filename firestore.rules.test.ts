@@ -1,0 +1,130 @@
+export interface AdversarialPayloadCase {
+  id: number;
+  name: string;
+  actorUid: string | null;
+  emailVerified: boolean;
+  operation: 'get' | 'list' | 'create' | 'update' | 'delete';
+  path: string;
+  payload?: Record<string, unknown>;
+  expectedResult: 'PERMISSION_DENIED';
+}
+
+export const dirtyDozenCases: AdversarialPayloadCase[] = [
+  {
+    id: 1,
+    name: 'Unauthenticated chat read',
+    actorUid: null,
+    emailVerified: false,
+    operation: 'get',
+    path: '/users/userA/chats/chat_1',
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 2,
+    name: 'Unverified email write',
+    actorUid: 'userA',
+    emailVerified: false,
+    operation: 'create',
+    path: '/users/userA/chats/chat_1',
+    payload: { id: 'chat_1', ownerId: 'userA', name: 'Test' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 3,
+    name: 'Cross-account chat list',
+    actorUid: 'userB',
+    emailVerified: true,
+    operation: 'list',
+    path: '/users/userA/chats',
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 4,
+    name: 'OwnerId spoofing on create',
+    actorUid: 'userB',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userB/chats/chat_1',
+    payload: { id: 'chat_1', ownerId: 'userA', name: 'Spoof' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 5,
+    name: 'Ghost field injection on create',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userA/chats/chat_1',
+    payload: { id: 'chat_1', ownerId: 'userA', name: 'Chat', isAdmin: true },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 6,
+    name: 'Immutable ownerId mutation on update',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'update',
+    path: '/users/userA/chats/chat_1',
+    payload: { ownerId: 'userB' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 7,
+    name: 'Invalid chatId format',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userA/chats/bad$id',
+    payload: { id: 'bad$id', ownerId: 'userA', name: 'Bad' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 8,
+    name: 'Client timestamp forgery',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userA/chats/chat_1',
+    payload: { id: 'chat_1', ownerId: 'userA', name: 'Time', createdAt: '2026-01-01T00:00:00Z' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 9,
+    name: 'Message text field mutation',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'update',
+    path: '/users/userA/chats/chat_1/messages/msg_1',
+    payload: { text: 'Tampered text' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 10,
+    name: 'Oversized actions array (>5)',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userA/chats/chat_1/messages/msg_1',
+    payload: { actions: [1, 2, 3, 4, 5, 6] },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 11,
+    name: 'Orphan message without parent chat',
+    actorUid: 'userA',
+    emailVerified: true,
+    operation: 'create',
+    path: '/users/userA/chats/missing_chat/messages/msg_1',
+    payload: { id: 'msg_1', ownerId: 'userA', chatId: 'missing_chat', role: 'user', text: 'hi' },
+    expectedResult: 'PERMISSION_DENIED',
+  },
+  {
+    id: 12,
+    name: 'Cross-account private PII read',
+    actorUid: 'userB',
+    emailVerified: true,
+    operation: 'get',
+    path: '/users/userA/private/info',
+    expectedResult: 'PERMISSION_DENIED',
+  },
+];
